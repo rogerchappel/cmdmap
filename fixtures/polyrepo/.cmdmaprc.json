@@ -1,0 +1,4 @@
+{
+  "preferredSmokePath": ["lint", "test", "build"],
+  "ignore": ["dev"]
+}
