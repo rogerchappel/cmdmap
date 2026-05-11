@@ -1,0 +1,6 @@
+[project]
+name = "polyrepo-fixture"
+
+[project.scripts]
+fixture-test = "pytest"
+fixture-secret = "python scripts/read_secret.py"
