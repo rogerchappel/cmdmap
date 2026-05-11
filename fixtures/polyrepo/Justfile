@@ -1,0 +1,5 @@
+fmt:
+  ruff format .
+
+serve:
+  python -m http.server
