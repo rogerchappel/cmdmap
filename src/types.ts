@@ -7,6 +7,7 @@ export type CommandKind =
   | "publish"
   | "destructive"
   | "networked"
+  | "privileged"
   | "secrets"
   | "unknown";
 

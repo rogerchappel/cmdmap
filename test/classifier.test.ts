@@ -13,3 +13,11 @@ test("test commands are safe", () => {
   assert.equal(finding.severity, "safe");
   assert.ok(finding.kinds.includes("test"));
 });
+
+
+test("privileged local system commands are risky", () => {
+  const finding = explainCommand("sudo launchctl kickstart gui/501/com.example.agent");
+  assert.equal(finding.severity, "risky");
+  assert.ok(finding.kinds.includes("privileged"));
+  assert.ok(finding.safetyNotes.some((note) => note.includes("Privileged")));
+});
