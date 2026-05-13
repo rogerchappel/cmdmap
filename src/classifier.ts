@@ -16,6 +16,7 @@ const KIND_PATTERNS: Array<[CommandKind, RegExp, Confidence]> = [
   ["publish", /(publish|npm publish|cargo publish|twine upload|docker push)/i, "high"],
   ["destructive", /(rm\s+-rf|rimraf|delete|destroy|drop\s+database|reset\s+--hard|clean)/i, "high"],
   ["networked", /(curl|wget|ssh|scp|rsync|git\s+push|docker\s+pull|docker\s+push|http:\/\/|https:\/\/)/i, "medium"],
+  ["privileged", /(^|[;&|\s])(sudo|su\s+-|chmod|chown|launchctl|systemctl)(\b|\s)/i, "high"],
   ["secrets", /(secret|token|password|apikey|api_key|\.env)/i, "medium"],
 ];
 
@@ -28,7 +29,7 @@ export function classify(raw: RawCommand, config: CmdMapConfig = {}): CommandFin
   const effectiveKinds = kinds.length ? kinds : ["unknown" as CommandKind];
   const allow = new Set(config.allowRisky ?? []);
   let severity: Severity = "safe";
-  const riskyKinds = effectiveKinds.filter((kind) => ["release", "publish", "destructive", "secrets", "networked"].includes(kind));
+  const riskyKinds = effectiveKinds.filter((kind) => ["release", "publish", "destructive", "secrets", "networked", "privileged"].includes(kind));
   if (riskyKinds.length && !allow.has(raw.name) && !allow.has(raw.command)) severity = "risky";
   else if (effectiveKinds.includes("dev-server") || effectiveKinds.includes("unknown")) severity = "caution";
   const safetyNotes = notesFor(effectiveKinds, severity);
@@ -69,6 +70,7 @@ function notesFor(kinds: CommandKind[], severity: Severity): string[] {
   if (kinds.includes("release") || kinds.includes("publish")) notes.add("Release/publish wording detected; do not run casually.");
   if (kinds.includes("destructive")) notes.add("Destructive wording or shell pattern detected.");
   if (kinds.includes("networked")) notes.add("Network-looking behavior detected.");
+  if (kinds.includes("privileged")) notes.add("Privileged local system command detected; require explicit review before running.");
   if (kinds.includes("secrets")) notes.add("Secret/token/env handling detected.");
   if (severity === "caution") notes.add("Inspect before automation because intent is not fully clear.");
   return [...notes];
