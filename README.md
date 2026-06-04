@@ -9,7 +9,7 @@ npm install
 npm run build
 node dist/src/cli.js scan . --out docs/COMMANDS.md
 node dist/src/cli.js scan fixtures/polyrepo --format json
-node dist/src/cli.js explain "npm run release"
+node dist/src/cli.js explain "npm run release:check"
 ```
 
 Once installed globally or through `npx`, use `cmdmap` directly:
