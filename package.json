@@ -16,6 +16,9 @@
   },
   "files": [
     "dist/src",
+    "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
     "README.md",
     "LICENSE",
     "SECURITY.md"
@@ -39,6 +42,14 @@
     "npm-scripts"
   ],
   "author": "Roger Chappel",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/cmdmap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/cmdmap/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/cmdmap#readme",
   "license": "MIT",
   "engines": {
     "node": ">=20"
