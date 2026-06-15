@@ -120,3 +120,12 @@ bash scripts/validate.sh
 ```
 
 `fixtures/polyrepo` contains a deliberately mixed repo surface for parser and smoke coverage.
+
+## Release Verification
+
+Before publishing or tagging a release, run the same verification path used by CI:
+
+- `npm run release:check`
+- `npm run package:smoke`
+
+See `docs/release-readiness.md` for the package surface, CLI bins, and reviewer checklist.
