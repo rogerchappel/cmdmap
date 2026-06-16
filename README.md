@@ -87,6 +87,16 @@ Explain one command without scanning a repo:
 cmdmap explain "npm publish"
 ```
 
+## Fixture demo
+
+Run the polyrepo walkthrough to generate both Markdown and JSON artifacts from the checked-in mixed command fixture:
+
+```bash
+bash demo/run-polyrepo-scan.sh
+```
+
+The companion tutorial is [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md), and promotion hooks are in [docs/promo/social-hooks.md](docs/promo/social-hooks.md).
+
 ## CI usage
 
 ```yaml
