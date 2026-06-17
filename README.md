@@ -75,6 +75,14 @@ Markdown output is intended for docs and handoffs:
 cmdmap scan . --out docs/COMMANDS.md
 ```
 
+The checked-in polyrepo demo generates both Markdown and JSON artifacts:
+
+```bash
+bash demo/run-polyrepo-scan.sh
+```
+
+Use [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md) for the walkthrough and [docs/promo/video-brief-polyrepo-command-map.md](docs/promo/video-brief-polyrepo-command-map.md) for a short recording outline.
+
 JSON output is stable enough for agents and CI artifacts:
 
 ```bash
