@@ -15,6 +15,8 @@ node dist/src/cli.js explain "npm run release:check"
 Once installed globally or through `npx`, use `cmdmap` directly:
 
 ```bash
+cmdmap --help
+cmdmap --version
 cmdmap scan . --out docs/COMMANDS.md
 cmdmap scan . --format json --fail-on risky
 cmdmap rules
