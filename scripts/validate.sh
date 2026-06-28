@@ -4,6 +4,8 @@ npm test
 npm run check
 npm run build
 npm run smoke
+node dist/src/cli.js --help >/tmp/cmdmap-help.txt
+node dist/src/cli.js --version >/tmp/cmdmap-version.txt
 node dist/src/cli.js scan fixtures/polyrepo --format json --fail-on risky >/tmp/cmdmap-risky.json && {
   echo "expected risky scan to exit non-zero" >&2
   exit 1
