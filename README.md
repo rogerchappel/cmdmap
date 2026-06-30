@@ -92,6 +92,15 @@ bash demo/run-ci-risk-gate.sh
 Use [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md) for the walkthrough and [docs/promo/video-brief-polyrepo-command-map.md](docs/promo/video-brief-polyrepo-command-map.md) for a short recording outline.
 The CI gate recipe is in [docs/tutorials/ci-risk-gate-artifact.md](docs/tutorials/ci-risk-gate-artifact.md), with a focused recording brief in [docs/promo/ci-risk-gate-video-brief.md](docs/promo/ci-risk-gate-video-brief.md).
 
+To turn the scanner's `recommendedPath` into a Markdown handoff brief, run:
+
+```bash
+bash demo/run-recommended-path.sh
+```
+
+See [docs/tutorials/recommended-path-brief.md](docs/tutorials/recommended-path-brief.md)
+and [docs/promo/recommended-path-social-pack.md](docs/promo/recommended-path-social-pack.md).
+
 JSON output is stable enough for agents and CI artifacts:
 
 ```bash
