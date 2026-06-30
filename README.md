@@ -83,7 +83,14 @@ The checked-in polyrepo demo generates both Markdown and JSON artifacts:
 bash demo/run-polyrepo-scan.sh
 ```
 
+For a CI-style JSON artifact plus an expected risky-command gate failure:
+
+```bash
+bash demo/run-ci-risk-gate.sh
+```
+
 Use [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md) for the walkthrough and [docs/promo/video-brief-polyrepo-command-map.md](docs/promo/video-brief-polyrepo-command-map.md) for a short recording outline.
+The CI gate recipe is in [docs/tutorials/ci-risk-gate-artifact.md](docs/tutorials/ci-risk-gate-artifact.md), with a focused recording brief in [docs/promo/ci-risk-gate-video-brief.md](docs/promo/ci-risk-gate-video-brief.md).
 
 JSON output is stable enough for agents and CI artifacts:
 
