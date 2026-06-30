@@ -33,3 +33,8 @@ bash demo/run-explain-commands.sh
 - Do not claim the classifier executes or sandboxes commands.
 - Keep the message scoped to static command discovery and reviewable evidence.
 - Treat risky findings as review signals, not automatic policy decisions.
+
+## Launch note
+
+Use [copied-command-launch-note.md](copied-command-launch-note.md) for a
+longer post or release-note style announcement of the `cmdmap explain` demo.
