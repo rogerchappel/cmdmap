@@ -117,6 +117,10 @@ The companion tutorial is [docs/tutorials/triage-command-surface.md](docs/tutori
     path: command-map.json
 ```
 
+For a runnable local version of the risk-gate flow, use
+[`demo/run-ci-risk-gate.sh`](demo/run-ci-risk-gate.sh). The companion tutorial is
+[`docs/tutorials/ci-risk-gate.md`](docs/tutorials/ci-risk-gate.md).
+
 ## Limitations
 
 - Does not execute or verify discovered commands.
