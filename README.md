@@ -97,6 +97,9 @@ Explain one command without scanning a repo:
 cmdmap explain "npm publish"
 ```
 
+For a copied-command review workflow, see
+[docs/tutorials/review-a-copied-command.md](docs/tutorials/review-a-copied-command.md).
+
 ## Fixture demo
 
 Run the polyrepo walkthrough to generate both Markdown and JSON artifacts from the checked-in mixed command fixture:
