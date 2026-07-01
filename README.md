@@ -15,6 +15,8 @@ node dist/src/cli.js explain "npm run release:check"
 Once installed globally or through `npx`, use `cmdmap` directly:
 
 ```bash
+cmdmap --help
+cmdmap --version
 cmdmap scan . --out docs/COMMANDS.md
 cmdmap scan . --format json --fail-on risky
 cmdmap rules
@@ -81,7 +83,23 @@ The checked-in polyrepo demo generates both Markdown and JSON artifacts:
 bash demo/run-polyrepo-scan.sh
 ```
 
+For a CI-style JSON artifact plus an expected risky-command gate failure:
+
+```bash
+bash demo/run-ci-risk-gate.sh
+```
+
 Use [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md) for the walkthrough and [docs/promo/video-brief-polyrepo-command-map.md](docs/promo/video-brief-polyrepo-command-map.md) for a short recording outline.
+The CI gate recipe is in [docs/tutorials/ci-risk-gate-artifact.md](docs/tutorials/ci-risk-gate-artifact.md), with a focused recording brief in [docs/promo/ci-risk-gate-video-brief.md](docs/promo/ci-risk-gate-video-brief.md).
+
+To turn the scanner's `recommendedPath` into a Markdown handoff brief, run:
+
+```bash
+bash demo/run-recommended-path.sh
+```
+
+See [docs/tutorials/recommended-path-brief.md](docs/tutorials/recommended-path-brief.md)
+and [docs/promo/recommended-path-social-pack.md](docs/promo/recommended-path-social-pack.md).
 
 JSON output is stable enough for agents and CI artifacts:
 
@@ -94,6 +112,9 @@ Explain one command without scanning a repo:
 ```bash
 cmdmap explain "npm publish"
 ```
+
+For a copied-command review workflow, see
+[docs/tutorials/review-a-copied-command.md](docs/tutorials/review-a-copied-command.md).
 
 ## Fixture demo
 

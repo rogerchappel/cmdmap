@@ -12,6 +12,7 @@ interface Args { _: string[]; [key: string]: string | boolean | string[]; }
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0];
+  if (args.version || args.v) return version();
   if (!command || args.help || args.h) return help();
   if (command === "scan") return scanCommand(args);
   if (command === "explain") return explain(args);
@@ -71,5 +72,9 @@ function parseArgs(argv: string[]): Args {
 
 function stringOpt(value: unknown): string | undefined { return typeof value === "string" ? value : undefined; }
 function help(): void { process.stdout.write(`cmdmap - map repo commands safely\n\nUsage:\n  cmdmap scan <path> [--format markdown|json] [--out file] [--fail-on risky]\n  cmdmap explain <command>\n  cmdmap rules\n`); }
+async function version(): Promise<void> {
+  const pkg = JSON.parse(await fs.readFile(new URL("../../package.json", import.meta.url), "utf8")) as { version?: string };
+  process.stdout.write(`${pkg.version ?? "0.0.0"}\n`);
+}
 
 main().catch((error: Error) => { console.error(`cmdmap: ${error.message}`); process.exitCode = 1; });
