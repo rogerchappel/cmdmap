@@ -113,6 +113,15 @@ Explain one command without scanning a repo:
 cmdmap explain "npm publish"
 ```
 
+For a copy/paste command risk review, run:
+
+```bash
+bash demo/run-copy-paste-risk-review.sh
+```
+
+The companion walkthrough is
+[docs/tutorials/copy-paste-risk-review.md](docs/tutorials/copy-paste-risk-review.md).
+
 For a copied-command review workflow, see
 [docs/tutorials/review-a-copied-command.md](docs/tutorials/review-a-copied-command.md).
 
