@@ -135,6 +135,8 @@ bash demo/run-polyrepo-scan.sh
 
 The companion tutorial is [docs/tutorials/triage-command-surface.md](docs/tutorials/triage-command-surface.md), and promotion hooks are in [docs/promo/social-hooks.md](docs/promo/social-hooks.md).
 
+For an agent-onboarding angle, use [docs/tutorials/agent-onboarding-command-map.md](docs/tutorials/agent-onboarding-command-map.md) and the grounded post pack in [docs/promo/agent-onboarding-post-pack.md](docs/promo/agent-onboarding-post-pack.md).
+
 ## CI usage
 
 ```yaml
