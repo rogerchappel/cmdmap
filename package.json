@@ -29,7 +29,7 @@
     "build": "tsc -p tsconfig.json",
     "pretest": "npm run build",
     "smoke": "npm run build && node dist/src/cli.js scan fixtures/polyrepo --out tmp/COMMANDS.md && node dist/src/cli.js scan fixtures/polyrepo --format json > tmp/commands.json && node dist/src/cli.js explain \"npm run release\"",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/pack-smoke.mjs",
     "release:check": "npm test && npm run check && npm run build && npm run smoke && npm run package:smoke"
   },
   "keywords": [
