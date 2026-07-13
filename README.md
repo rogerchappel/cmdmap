@@ -137,6 +137,15 @@ The companion tutorial is [docs/tutorials/triage-command-surface.md](docs/tutori
 
 For an agent-onboarding angle, use [docs/tutorials/agent-onboarding-command-map.md](docs/tutorials/agent-onboarding-command-map.md) and the grounded post pack in [docs/promo/agent-onboarding-post-pack.md](docs/promo/agent-onboarding-post-pack.md).
 
+To turn the scan into a compact agent handoff with a recommended first-run list,
+use:
+
+```bash
+bash demo/run-agent-handoff.sh
+```
+
+The companion recipe is [docs/tutorials/agent-command-handoff.md](docs/tutorials/agent-command-handoff.md).
+
 ## CI usage
 
 ```yaml
