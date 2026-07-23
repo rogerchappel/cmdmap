@@ -12,7 +12,22 @@ node dist/src/cli.js scan fixtures/polyrepo --format json
 node dist/src/cli.js explain "npm run release:check"
 ```
 
-Once installed globally or through `npx`, use `cmdmap` directly:
+Install the published package globally:
+
+```bash
+npm install --global @rogerchappel/cmdmap
+cmdmap --help
+```
+
+Or run it without a global install:
+
+```bash
+npx --yes @rogerchappel/cmdmap --help
+npx --yes @rogerchappel/cmdmap scan . --out docs/COMMANDS.md
+```
+
+The package is scoped because the unscoped `cmdmap` name belongs to unrelated
+software. After global installation, use the `cmdmap` executable directly:
 
 ```bash
 cmdmap --help
