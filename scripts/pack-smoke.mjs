@@ -6,9 +6,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+const expectedPackageName = "@rogerchappel/cmdmap";
+const expectedBinName = "cmdmap";
 const tempDir = await mkdtemp(join(tmpdir(), "cmdmap-pack-smoke-"));
 
 try {
+  if (packageJson.name !== expectedPackageName) {
+    throw new Error(`package name ${packageJson.name} did not match ${expectedPackageName}`);
+  }
+  if (packageJson.bin?.[expectedBinName] !== "./dist/src/cli.js") {
+    throw new Error(`package bin ${expectedBinName} did not point to ./dist/src/cli.js`);
+  }
+
+  const readme = await readFile("README.md", "utf8");
+  const documentedInvocation = `npx --yes ${expectedPackageName}`;
+  if (!readme.includes(documentedInvocation)) {
+    throw new Error(`README did not document ${documentedInvocation}`);
+  }
+
   const output = execFileSync(
     "npm",
     ["pack", "--pack-destination", tempDir, "--json"],
@@ -40,8 +55,21 @@ try {
     process.exit(1);
   }
 
+  const tarballPath = join(tempDir, pack.filename);
+  const packedManifest = JSON.parse(
+    execFileSync("tar", ["-xOf", tarballPath, "package/package.json"], {
+      encoding: "utf8"
+    })
+  );
+  if (packedManifest.name !== expectedPackageName) {
+    throw new Error(`packed manifest name ${packedManifest.name} did not match ${expectedPackageName}`);
+  }
+  if (packedManifest.bin?.[expectedBinName] !== "./dist/src/cli.js") {
+    throw new Error(`packed manifest bin ${expectedBinName} did not match the documented CLI`);
+  }
+
   const installDir = join(tempDir, "install");
-  execFileSync("npm", ["install", "--prefix", installDir, join(tempDir, pack.filename)], {
+  execFileSync("npm", ["install", "--prefix", installDir, tarballPath], {
     stdio: ["ignore", "ignore", "inherit"]
   });
 
