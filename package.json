@@ -1,5 +1,5 @@
 {
-  "name": "cmdmap",
+  "name": "@rogerchappel/cmdmap",
   "version": "0.1.0",
   "description": "Local-first command surface mapper for safer humans and agents.",
   "type": "module",
@@ -51,6 +51,10 @@
   },
   "homepage": "https://github.com/rogerchappel/cmdmap#readme",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=20"
   },
