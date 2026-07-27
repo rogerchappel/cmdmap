@@ -8,10 +8,14 @@ import { scan } from "./scan.js";
 import type { Severity } from "./types.js";
 
 interface Args { _: string[]; [key: string]: string | boolean | string[]; }
+const formats = ["markdown", "json"] as const;
+const failThresholds = ["risky", "risky-release", "caution"] as const;
+const valueOptions = new Set(["format", "out", "fail-on", "config"]);
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const command = args._[0];
+  validateArgs(args, command);
   if (args.version || args.v) return version();
   if (!command || args.help || args.h) return help();
   if (command === "scan") return scanCommand(args);
@@ -61,7 +65,7 @@ function parseArgs(argv: string[]): Args {
     if (token.startsWith("--")) {
       const [key, inline] = token.slice(2).split("=", 2);
       if (inline !== undefined) args[key] = inline;
-      else if (argv[i + 1] && !argv[i + 1].startsWith("--")) args[key] = argv[++i];
+      else if (valueOptions.has(key) && argv[i + 1] && !argv[i + 1].startsWith("-")) args[key] = argv[++i];
       else args[key] = true;
     } else if (token.startsWith("-") && token.length === 2) {
       args[token.slice(1)] = true;
@@ -70,11 +74,52 @@ function parseArgs(argv: string[]): Args {
   return args;
 }
 
+function validateArgs(args: Args, command: string | undefined): void {
+  const knownCommands = ["scan", "explain", "rules"];
+  if (command && !knownCommands.includes(command)) usageError(`Unknown command: ${command}`);
+
+  const allowed = new Set(command === "scan"
+    ? ["_", "format", "out", "fail-on", "config", "help", "h"]
+    : command === "explain"
+      ? ["_", "config", "help", "h"]
+      : command === "rules"
+        ? ["_", "help", "h"]
+        : ["_", "help", "h", "version", "v"]);
+  for (const key of Object.keys(args)) {
+    if (!allowed.has(key)) usageError(`Unknown option: ${key.length === 1 ? "-" : "--"}${key}`);
+  }
+
+  for (const option of valueOptions) {
+    if (args[option] === true) usageError(`--${option} requires a value`);
+  }
+  const format = stringOpt(args.format);
+  if (format && !formats.includes(format as typeof formats[number])) {
+    usageError(`Invalid --format value: ${format} (expected ${formats.join(" or ")})`);
+  }
+  const failOn = stringOpt(args["fail-on"]);
+  if (failOn && !failThresholds.includes(failOn as typeof failThresholds[number])) {
+    usageError(`Invalid --fail-on value: ${failOn} (expected ${failThresholds.join(", ")})`);
+  }
+  if (command === "scan" && args._.length > 2) usageError("scan accepts at most one path");
+  if (command === "rules" && args._.length > 1) usageError("rules accepts no arguments");
+}
+
+function usageError(message: string): never {
+  throw new UsageError(message);
+}
+
+class UsageError extends Error {}
+
 function stringOpt(value: unknown): string | undefined { return typeof value === "string" ? value : undefined; }
-function help(): void { process.stdout.write(`cmdmap - map repo commands safely\n\nUsage:\n  cmdmap scan <path> [--format markdown|json] [--out file] [--fail-on risky]\n  cmdmap explain <command>\n  cmdmap rules\n`); }
+function usage(): string { return `cmdmap - map repo commands safely\n\nUsage:\n  cmdmap scan <path> [--format markdown|json] [--out file] [--fail-on risky|risky-release|caution] [--config file]\n  cmdmap explain <command> [--config file]\n  cmdmap rules\n`; }
+function help(): void { process.stdout.write(usage()); }
 async function version(): Promise<void> {
   const pkg = JSON.parse(await fs.readFile(new URL("../../package.json", import.meta.url), "utf8")) as { version?: string };
   process.stdout.write(`${pkg.version ?? "0.0.0"}\n`);
 }
 
-main().catch((error: Error) => { console.error(`cmdmap: ${error.message}`); process.exitCode = 1; });
+main().catch((error: Error) => {
+  process.stderr.write(`cmdmap: ${error.message}\n`);
+  if (error instanceof UsageError) process.stderr.write(`\n${usage()}`);
+  process.exitCode = 1;
+});
