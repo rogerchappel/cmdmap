@@ -14,3 +14,8 @@ if [ "${status:-0}" -ne 2 ]; then
   echo "expected exit 2 for --fail-on risky, got ${status:-0}" >&2
   exit 1
 fi
+if node dist/src/cli.js scan fixtures/polyrepo --fail-on riskyy >/tmp/cmdmap-invalid.txt 2>/tmp/cmdmap-invalid.err; then
+  echo "expected invalid --fail-on value to exit non-zero" >&2
+  exit 1
+fi
+grep -q "Usage:" /tmp/cmdmap-invalid.err

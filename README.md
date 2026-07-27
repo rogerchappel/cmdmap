@@ -60,7 +60,9 @@ Every finding includes file and line evidence so humans and agents can inspect t
 - dev servers and unknown commands are **caution** because they may hang or have unclear side effects.
 - release, publish, destructive, secret-related, and network-looking commands are **risky** by default.
 - `cmdmap scan` never runs discovered commands.
-- `--fail-on risky` exits with code `2` when risky commands are present, which is useful in CI.
+- `--format` accepts `markdown` (the default) or `json`.
+- `--fail-on risky` and `--fail-on risky-release` exit with code `2` when risky commands are present; `--fail-on caution` exits with code `2` for caution or risky findings.
+- Unknown commands or options, missing option values, and unsupported `--format` or `--fail-on` values print usage to stderr and exit with code `1`.
 
 This is heuristic static analysis, not a sandbox. Treat the output as a map, not permission.
 

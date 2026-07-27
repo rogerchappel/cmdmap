@@ -7,6 +7,10 @@ format and uses semantic versioning when versioned releases are published.
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject malformed CLI arguments instead of silently choosing fallback behavior.
+
 ### Added
 
 - Initial project setup.
