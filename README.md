@@ -4,30 +4,38 @@
 
 ## Quick start
 
+The npm package is not published yet. Until a release is available from the
+registry, build a package tarball from a clean checkout and install it into a
+local prefix:
+
 ```bash
-npm install
+npm ci
 npm run build
-node dist/src/cli.js scan . --out docs/COMMANDS.md
+npm pack
+npm install --prefix .cmdmap-local ./rogerchappel-cmdmap-0.1.0.tgz
+./.cmdmap-local/node_modules/.bin/cmdmap --help
+./.cmdmap-local/node_modules/.bin/cmdmap scan . --out docs/COMMANDS.md
+```
+
+The tarball name includes the version from `package.json`; replace `0.1.0` in
+the example after that version changes. Remove `.cmdmap-local` and the tarball
+when you no longer need the local installation.
+
+You can also run the built CLI directly while developing:
+
+```bash
 node dist/src/cli.js scan fixtures/polyrepo --format json
 node dist/src/cli.js explain "npm run release:check"
 ```
 
-Install the published package globally:
+### After the npm release
 
-```bash
-npm install --global @rogerchappel/cmdmap
-cmdmap --help
-```
+Registry-backed installation will be supported once
+`npm view @rogerchappel/cmdmap version` succeeds. At that point, install the
+reported version globally or run that same version with `npx`. The package is
+scoped because the unscoped `cmdmap` name belongs to unrelated software.
 
-Or run it without a global install:
-
-```bash
-npx --yes @rogerchappel/cmdmap --help
-npx --yes @rogerchappel/cmdmap scan . --out docs/COMMANDS.md
-```
-
-The package is scoped because the unscoped `cmdmap` name belongs to unrelated
-software. After global installation, use the `cmdmap` executable directly:
+After a global installation, use the `cmdmap` executable directly:
 
 ```bash
 cmdmap --help
