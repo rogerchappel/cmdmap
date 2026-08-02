@@ -19,9 +19,28 @@ try {
   }
 
   const readme = await readFile("README.md", "utf8");
-  const documentedInvocation = `npx --yes ${expectedPackageName}`;
-  if (!readme.includes(documentedInvocation)) {
-    throw new Error(`README did not document ${documentedInvocation}`);
+  const unsupportedRegistryCommands = [
+    `npm install --global ${expectedPackageName}`,
+    `npx --yes ${expectedPackageName}`
+  ];
+  for (const command of unsupportedRegistryCommands) {
+    if (readme.includes(command)) {
+      throw new Error(`README presented unavailable registry command as runnable: ${command}`);
+    }
+  }
+
+  const tarballName = `rogerchappel-cmdmap-${packageJson.version}.tgz`;
+  const documentedCommands = [
+    "npm ci",
+    "npm run build",
+    "npm pack",
+    `npm install --prefix .cmdmap-local ./${tarballName}`,
+    "./.cmdmap-local/node_modules/.bin/cmdmap --help"
+  ];
+  for (const command of documentedCommands) {
+    if (!readme.includes(command)) {
+      throw new Error(`README did not document pre-release command: ${command}`);
+    }
   }
 
   const output = execFileSync(
