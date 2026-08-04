@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { CmdMapConfig, CommandFinding, CommandKind, Confidence, Evidence, Severity } from "./types.js";
 
 interface RawCommand {
@@ -34,7 +35,7 @@ export function classify(raw: RawCommand, config: CmdMapConfig = {}): CommandFin
   else if (effectiveKinds.includes("dev-server") || effectiveKinds.includes("unknown")) severity = "caution";
   const safetyNotes = notesFor(effectiveKinds, severity);
   return {
-    id: stableId(raw.runner, raw.name),
+    id: stableId(raw),
     name: raw.name,
     command: raw.command,
     runner: raw.runner,
@@ -51,8 +52,10 @@ export function explainCommand(command: string, config: CmdMapConfig = {}): Comm
   return classify({ name: command, command, runner: "ad-hoc", evidence: { file: "<input>", line: 1, source: command } }, config);
 }
 
-function stableId(runner: string, name: string): string {
-  return `${runner}:${name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+function stableId(raw: RawCommand): string {
+  const label = `${raw.runner}:${raw.name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const identity = JSON.stringify([raw.runner, raw.name, raw.command, raw.evidence.file, raw.evidence.line, raw.evidence.source]);
+  return `${label}-${createHash("sha256").update(identity).digest("hex").slice(0, 12)}`;
 }
 
 function highestConfidence(values: Confidence[]): Confidence {

@@ -32,7 +32,12 @@ function dedupe(findings: CommandFinding[]): CommandFinding[] {
 }
 
 function compareFindings(a: CommandFinding, b: CommandFinding): number {
-  return a.runner.localeCompare(b.runner) || a.name.localeCompare(b.name) || a.evidence.file.localeCompare(b.evidence.file);
+  return a.runner.localeCompare(b.runner)
+    || a.name.localeCompare(b.name)
+    || a.evidence.file.localeCompare(b.evidence.file)
+    || a.evidence.line - b.evidence.line
+    || a.command.localeCompare(b.command)
+    || a.id.localeCompare(b.id);
 }
 
 function summarize(findings: CommandFinding[]): Record<Severity, number> {
