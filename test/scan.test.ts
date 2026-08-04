@@ -20,3 +20,23 @@ test("markdown report is stable and useful", async () => {
   assert.match(md, /Recommended verification path/);
   assert.match(md, /package.json/);
 });
+
+test("scan preserves colliding workspace scripts with deterministic identities", async () => {
+  const first = await scan({ cwd: "fixtures/colliding-workspaces" });
+  const second = await scan({ cwd: "fixtures/colliding-workspaces" });
+  const tests = first.findings.filter((finding) => finding.runner === "npm" && finding.name === "test");
+
+  assert.deepEqual(tests.map((finding) => [finding.command, finding.evidence.file, finding.evidence.line]), [
+    ["node --test", "package.json", 3],
+    ["vitest run", "packages/api/package.json", 3],
+    ["node --test", "packages/web/package.json", 3],
+  ]);
+  assert.equal(new Set(tests.map((finding) => finding.id)).size, 3);
+  assert.deepEqual(first.findings.map((finding) => finding.id), second.findings.map((finding) => finding.id));
+  assert.deepEqual(first.summary, { safe: 4, caution: 0, risky: 1 });
+  assert.deepEqual(first.recommendedPath.map((finding) => [finding.name, finding.evidence.file]), [
+    ["test", "package.json"],
+    ["lint", "packages/api/package.json"],
+    ["test", "packages/api/package.json"],
+  ]);
+});
