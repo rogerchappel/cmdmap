@@ -59,6 +59,7 @@ V1 scans these local files without executing project commands:
 - files under `scripts/`
 
 Every finding includes file and line evidence so humans and agents can inspect the source.
+Finding identity includes the runner, name, command, and complete file/line evidence. This keeps same-named workspace scripts as separate findings, while byte-for-byte identical findings from the same evidence location collapse to one. IDs and report ordering are deterministic for unchanged inputs.
 
 ## Safety model
 
