@@ -95,6 +95,11 @@ Add `.cmdmaprc.json` at the repo root:
 - `labels`: custom command labels.
 - `preferredSmokePath`: names or commands to prefer in the recommended path.
 
+Configuration is validated before scanning or explaining commands. Invalid JSON, a non-object root,
+non-array values, non-string array entries, or unrecognized command kinds in `labels` cause cmdmap to
+exit with the config file and invalid field in the diagnostic. Invalid configuration always fails closed;
+it is never used to filter, classify, or recommend commands.
+
 ## Output examples
 
 Markdown output is intended for docs and handoffs:
