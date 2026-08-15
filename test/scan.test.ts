@@ -40,3 +40,16 @@ test("scan preserves colliding workspace scripts with deterministic identities",
     ["test", "packages/api/package.json"],
   ]);
 });
+
+test("package script evidence points inside scripts when a key name appears earlier", async () => {
+  const first = await scan({ cwd: "fixtures/duplicate-package-key" });
+  const second = await scan({ cwd: "fixtures/duplicate-package-key" });
+  const finding = first.findings.find((candidate) => candidate.runner === "npm" && candidate.name === "test");
+
+  assert.deepEqual(finding?.evidence, {
+    file: "package.json",
+    line: 4,
+    source: '"test": "node --test"',
+  });
+  assert.deepEqual(first.findings.map((candidate) => candidate.id), second.findings.map((candidate) => candidate.id));
+});

@@ -29,7 +29,7 @@ function parsePackageJson(file: CandidateFile): RawCommand[] {
   const out: RawCommand[] = [];
   const data = JSON.parse(file.content) as { scripts?: Record<string, string> };
   for (const [name, command] of Object.entries(data.scripts ?? {})) {
-    const line = findLine(file, `"${name}"`);
+    const line = findPackageScriptLine(file, name);
     out.push({ name, command, runner: "npm", evidence: evidence(file, line) });
   }
   return out;
@@ -107,7 +107,28 @@ function parseScriptName(file: CandidateFile): RawCommand[] {
   return [{ name: executable, command: file.relPath, runner: "script", evidence: evidence(file, 1) }];
 }
 
-function findLine(file: CandidateFile, needle: string): number {
-  const index = file.lines.findIndex((line) => line.includes(needle));
-  return index >= 0 ? index + 1 : 1;
+function findPackageScriptLine(file: CandidateFile, scriptName: string): number {
+  const tokens: Array<{ value: string; offset: number; end: number; depth: number }> = [];
+  let depth = 0;
+
+  for (let offset = 0; offset < file.content.length;) {
+    const character = file.content[offset];
+    if (character === "{") { depth++; offset++; continue; }
+    if (character === "}") { depth--; offset++; continue; }
+    if (character !== '"') { offset++; continue; }
+
+    const start = offset++;
+    while (offset < file.content.length) {
+      if (file.content[offset] === "\\") { offset += 2; continue; }
+      if (file.content[offset++] === '"') break;
+    }
+    const raw = file.content.slice(start, offset);
+    tokens.push({ value: JSON.parse(raw) as string, offset: start, end: offset, depth });
+  }
+
+  const isKey = (token: { end: number }): boolean => /^\s*:/.test(file.content.slice(token.end));
+  const scripts = tokens.find((token) => token.depth === 1 && token.value === "scripts" && isKey(token));
+  const script = scripts && tokens.find((token) => token.offset > scripts.offset && token.depth === 2 && token.value === scriptName && isKey(token));
+  if (!script) return 1;
+  return file.content.slice(0, script.offset).split(/\r?\n/).length;
 }
