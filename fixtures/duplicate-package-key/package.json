@@ -1,0 +1,6 @@
+{
+  "metadata": { "test": "not a script" },
+  "scripts": {
+    "test": "node --test"
+  }
+}
