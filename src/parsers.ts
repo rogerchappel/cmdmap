@@ -94,9 +94,14 @@ function parsePyproject(file: CandidateFile): RawCommand[] {
     const line = file.lines[index].trim();
     const header = /^\[([^\]]+)\]/.exec(line);
     if (header) section = header[1];
-    const script = /^([A-Za-z0-9_.-]+)\s*=\s*["']([^"']+)["']/.exec(line);
-    if (script && ["project.scripts", "tool.poetry.scripts", "tool.poe.tasks"].includes(section)) {
-      out.push({ name: script[1], command: script[2], runner: "python", evidence: evidence(file, index + 1) });
+    const script = /^(?:([A-Za-z0-9_.-]+)|"([^"]+)"|'([^']+)')\s*=\s*(["'])(.*?)\4\s*(?:#.*)?$/.exec(line);
+    if (!script) continue;
+    const name = script[1] ?? script[2] ?? script[3];
+    const value = script[5];
+    if (["project.scripts", "tool.poetry.scripts"].includes(section)) {
+      out.push({ name, command: name, runner: "python", evidence: evidence(file, index + 1) });
+    } else if (section === "tool.poe.tasks") {
+      out.push({ name, command: value, runner: "poe", evidence: evidence(file, index + 1) });
     }
   }
   return out;
