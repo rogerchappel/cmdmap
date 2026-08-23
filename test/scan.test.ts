@@ -35,6 +35,42 @@ async function withManifest(content: string, run: (root: string) => Promise<void
   }
 }
 
+async function withPyproject(content: string, run: (root: string) => Promise<void>): Promise<void> {
+  const root = await mkdtemp(path.join(os.tmpdir(), "cmdmap-pyproject-"));
+  try {
+    await writeFile(path.join(root, "pyproject.toml"), content);
+    await run(root);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}
+
+test("scan distinguishes installed Python scripts from Poe task commands", async () => {
+  const manifest = `[project.scripts]\nverify = "demo.cli:main"\n\n[tool.poetry.scripts]\n"serve-local" = "demo.server:start"\n\n[tool.poe.tasks]\ncheck = "pytest -q"\n`;
+  await withPyproject(manifest, async (root) => {
+    const first = await scan({ cwd: root });
+    const second = await scan({ cwd: root });
+
+    assert.deepEqual(first.findings.map(({ name, command, runner, severity, evidence }) => ({ name, command, runner, severity, evidence })), [
+      { name: "check", command: "pytest -q", runner: "poe", severity: "safe", evidence: { file: "pyproject.toml", line: 8, source: 'check = "pytest -q"' } },
+      { name: "serve-local", command: "serve-local", runner: "python", severity: "caution", evidence: { file: "pyproject.toml", line: 5, source: '"serve-local" = "demo.server:start"' } },
+      { name: "verify", command: "verify", runner: "python", severity: "caution", evidence: { file: "pyproject.toml", line: 2, source: 'verify = "demo.cli:main"' } },
+    ]);
+    assert.deepEqual(first.findings.map((finding) => finding.id), second.findings.map((finding) => finding.id));
+  });
+});
+
+test("scan ignores unsupported and malformed pyproject script values", async () => {
+  const manifest = `[project.scripts]\nvalid = "demo.cli:main"\ninvalid-array = ["demo.cli:main"]\ninvalid-table = { call = "demo.cli:main" }\ninvalid-bare = demo.cli:main\n\n[tool.poe.tasks]\nvalid-task = "ruff check"\ncomplex-task = { cmd = "pytest" }\nunterminated = "pytest\n`;
+  await withPyproject(manifest, async (root) => {
+    const result = await scan({ cwd: root });
+    assert.deepEqual(result.findings.map(({ name, command, runner }) => ({ name, command, runner })), [
+      { name: "valid-task", command: "ruff check", runner: "poe" },
+      { name: "valid", command: "valid", runner: "python" },
+    ]);
+  });
+});
+
 test("scan identifies malformed package manifests", async () => {
   await withManifest('{"scripts": {"test": "node test.js"}', async (root) => {
     await assert.rejects(scan({ cwd: root }), /Invalid package\.json .*package\.json: .*position/);
