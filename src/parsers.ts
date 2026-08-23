@@ -27,12 +27,33 @@ function evidence(file: CandidateFile, line: number): Evidence {
 
 function parsePackageJson(file: CandidateFile): RawCommand[] {
   const out: RawCommand[] = [];
-  const data = JSON.parse(file.content) as { scripts?: Record<string, string> };
-  for (const [name, command] of Object.entries(data.scripts ?? {})) {
+  let data: unknown;
+  try {
+    data = JSON.parse(file.content);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid package.json ${file.relPath}: ${detail}`);
+  }
+  if (!isRecord(data)) {
+    throw new Error(`Invalid package.json ${file.relPath}: manifest must be an object`);
+  }
+  const scripts = data.scripts;
+  if (scripts === undefined) return out;
+  if (!isRecord(scripts)) {
+    throw new Error(`Invalid package.json ${file.relPath}: "scripts" must be an object`);
+  }
+  for (const [name, command] of Object.entries(scripts)) {
     const line = findPackageScriptLine(file, name);
+    if (typeof command !== "string") {
+      throw new Error(`Invalid package.json ${file.relPath}: script "${name}" on line ${line} must be a string`);
+    }
     out.push({ name, command, runner: "npm", evidence: evidence(file, line) });
   }
   return out;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function parseMakefile(file: CandidateFile): RawCommand[] {
