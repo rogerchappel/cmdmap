@@ -1,4 +1,8 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { scan, toMarkdown } from "../src/index.js";
 
@@ -19,6 +23,52 @@ test("markdown report is stable and useful", async () => {
   assert.match(md, /# Command Map/);
   assert.match(md, /Recommended verification path/);
   assert.match(md, /package.json/);
+});
+
+async function withManifest(content: string, run: (root: string) => Promise<void>): Promise<void> {
+  const root = await mkdtemp(path.join(os.tmpdir(), "cmdmap-manifest-"));
+  try {
+    await writeFile(path.join(root, "package.json"), content);
+    await run(root);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}
+
+test("scan identifies malformed package manifests", async () => {
+  await withManifest('{"scripts": {"test": "node test.js"}', async (root) => {
+    await assert.rejects(scan({ cwd: root }), /Invalid package\.json .*package\.json: .*position/);
+  });
+});
+
+test("scan rejects non-object package scripts", async () => {
+  await withManifest('{"scripts": ["npm test"]}', async (root) => {
+    await assert.rejects(scan({ cwd: root }), /Invalid package\.json .*package\.json: "scripts" must be an object/);
+  });
+});
+
+test("scan rejects a non-object package manifest", async () => {
+  await withManifest('[{"scripts":{"test":"node test.js"}}]', async (root) => {
+    await assert.rejects(scan({ cwd: root }), /Invalid package\.json .*package\.json: manifest must be an object/);
+  });
+});
+
+test("scan rejects non-string package script commands with exact evidence", async () => {
+  await withManifest('{\n  "scripts": {\n    "test": 42\n  }\n}\n', async (root) => {
+    await assert.rejects(scan({ cwd: root }), /Invalid package\.json .*package\.json: script "test" on line 3 must be a string/);
+  });
+});
+
+test("CLI reports the offending manifest and script", async () => {
+  await withManifest('{\n  "scripts": {\n    "test": false\n  }\n}\n', async (root) => {
+    const result = spawnSync(process.execPath, ["dist/src/cli.js", "scan", root, "--format", "json"], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 1);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /cmdmap: Invalid package\.json .*package\.json: script "test" on line 3 must be a string/);
+  });
 });
 
 test("scan preserves colliding workspace scripts with deterministic identities", async () => {
