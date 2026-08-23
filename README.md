@@ -53,12 +53,19 @@ V1 scans these local files without executing project commands:
 - `Makefile` targets
 - `Justfile` recipes
 - `Taskfile.yml` / `Taskfile.yaml` tasks
-- `pyproject.toml` scripts/tasks
+- `pyproject.toml` installed console scripts from `[project.scripts]` and
+  `[tool.poetry.scripts]`, plus string commands from `[tool.poe.tasks]`
 - `Cargo.toml` default cargo workflows
 - README command snippets
 - files under `scripts/`
 
 Every finding includes file and line evidence so humans and agents can inspect the source.
+
+For standards-defined Python console scripts, the table key is the installed
+runnable command: `verify = "demo.cli:main"` is reported as `verify`, not as the
+Python object reference. Poe string tasks retain their command value, so
+`check = "pytest -q"` is reported as `pytest -q`. Complex, multiline, malformed,
+or otherwise unsupported pyproject values are ignored rather than guessed.
 
 Malformed `package.json` files stop the scan instead of producing an incomplete
 command map. The diagnostic names the offending manifest; invalid `scripts`
