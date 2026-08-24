@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -125,6 +125,35 @@ test("scan preserves colliding workspace scripts with deterministic identities",
     ["lint", "packages/api/package.json"],
     ["test", "packages/api/package.json"],
   ]);
+});
+
+test("scan skips generated environments while preserving nested workspaces", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "cmdmap-generated-"));
+  const manifests = new Map([
+    ["packages/api", "node --test"],
+    [".venv/example", "npm publish"],
+    ["venv/example", "npm publish"],
+    [".tox/example", "npm publish"],
+    [".nox/example", "npm publish"],
+    ["node_modules/example", "npm publish"],
+    ["dist/example", "npm publish"],
+    ["target/example", "npm publish"],
+  ]);
+
+  try {
+    for (const [directory, command] of manifests) {
+      const destination = path.join(root, directory);
+      await mkdir(destination, { recursive: true });
+      await writeFile(path.join(destination, "package.json"), JSON.stringify({ scripts: { test: command } }));
+    }
+
+    const result = await scan({ cwd: root });
+    assert.deepEqual(result.findings.map((finding) => [finding.command, finding.evidence.file]), [
+      ["node --test", "packages/api/package.json"],
+    ]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("package script evidence points inside scripts when a key name appears earlier", async () => {
