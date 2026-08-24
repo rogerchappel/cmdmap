@@ -15,7 +15,19 @@ export const V1_FILES = new Set([
   "readme.md",
 ]);
 
-const SKIP_DIRS = new Set([".git", "node_modules", "dist", "coverage", ".next", ".turbo"]);
+const SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  ".venv",
+  "venv",
+  ".tox",
+  ".nox",
+  "dist",
+  "coverage",
+  ".next",
+  ".turbo",
+  "target",
+]);
 
 export interface CandidateFile {
   absPath: string;
