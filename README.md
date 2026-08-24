@@ -59,6 +59,11 @@ V1 scans these local files without executing project commands:
 - README command snippets
 - files under `scripts/`
 
+Discovery traverses normal nested packages and workspaces. It skips generated
+or dependency trees named `.git`, `node_modules`, `.venv`, `venv`, `.tox`,
+`.nox`, `dist`, `coverage`, `.next`, `.turbo`, or `target`, so commands copied
+into environments and build output do not pollute the command map.
+
 Every finding includes file and line evidence so humans and agents can inspect the source.
 
 For standards-defined Python console scripts, the table key is the installed
