@@ -25,6 +25,40 @@ test("markdown report is stable and useful", async () => {
   assert.match(md, /package.json/);
 });
 
+test("markdown tables escape shell pipelines, newlines, and code delimiters", async () => {
+  const command = `printf '\`value\`
+next' | sed 's/value/result/'`;
+  await withManifest(JSON.stringify({ scripts: { pipe: command } }), async (root) => {
+    const result = await scan({ cwd: root });
+    result.findings[0].runner = "npm|workspace";
+    result.findings[0].kinds = ["test|check" as never];
+    result.findings[0].evidence.file = "packages/api|worker/package.json";
+    result.findings[0].safetyNotes = ["Review first|then run.\nKeep the output."];
+
+    const jsonBefore = JSON.stringify(result);
+    const markdown = toMarkdown(result);
+    const tableRow = markdown.split("\n").find((line) => line.includes("printf"));
+
+    assert.ok(tableRow);
+    assert.match(tableRow, /``printf '`value`<br>next' \\| sed 's\/value\/result\/'``/);
+    assert.match(tableRow, /npm\\\|workspace/);
+    assert.match(tableRow, /test\\\|check/);
+    assert.match(tableRow, /packages\/api\\\|worker\/package\.json/);
+    assert.match(tableRow, /Review first\\\|then run\.<br>Keep the output\./);
+    assert.equal(tableRow.split(/(?<!\\)\|/).length - 2, 6);
+    assert.equal(JSON.stringify(result), jsonBefore);
+
+    const cli = spawnSync(process.execPath, ["dist/src/cli.js", "scan", root], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+    });
+    assert.equal(cli.status, 0, cli.stderr);
+    const cliRow = cli.stdout.split("\n").find((line) => line.includes("printf"));
+    assert.ok(cliRow);
+    assert.equal(cliRow.split(/(?<!\\)\|/).length - 2, 6);
+  });
+});
+
 async function withManifest(content: string, run: (root: string) => Promise<void>): Promise<void> {
   const root = await mkdtemp(path.join(os.tmpdir(), "cmdmap-manifest-"));
   try {
