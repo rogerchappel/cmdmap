@@ -125,6 +125,10 @@ Markdown output is intended for docs and handoffs:
 cmdmap scan . --out docs/COMMANDS.md
 ```
 
+Markdown command tables preserve six columns even when discovered commands or
+evidence contain pipes, multiline text, backslashes, or backticks. JSON output
+retains the original values without Markdown escaping.
+
 The checked-in polyrepo demo generates both Markdown and JSON artifacts:
 
 ```bash
