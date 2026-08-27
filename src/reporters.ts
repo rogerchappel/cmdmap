@@ -24,6 +24,28 @@ export function toMarkdown(result: ScanResult): string {
 }
 
 function row(finding: CommandFinding): string {
-  const notes = finding.safetyNotes.join(" ").replace(/\|/g, "\\|");
-  return `| \`${finding.command}\` | ${finding.runner} | ${finding.kinds.join(", ")} | ${finding.severity} (${finding.confidence}) | ${finding.evidence.file}:${finding.evidence.line} | ${notes} |`;
+  const cells = [
+    codeCell(finding.command),
+    tableCell(finding.runner),
+    tableCell(finding.kinds.join(", ")),
+    tableCell(`${finding.severity} (${finding.confidence})`),
+    tableCell(`${finding.evidence.file}:${finding.evidence.line}`),
+    tableCell(finding.safetyNotes.join(" ")),
+  ];
+  return `| ${cells.join(" | ")} |`;
+}
+
+function tableCell(value: string): string {
+  return value
+    .replace(/\\/g, "&#92;")
+    .replace(/\|/g, "\\|")
+    .replace(/\r\n?|\n/g, "<br>");
+}
+
+function codeCell(value: string): string {
+  const escaped = tableCell(value);
+  const longestRun = Math.max(0, ...Array.from(escaped.matchAll(/`+/g), (match) => match[0].length));
+  const delimiter = "`".repeat(longestRun + 1);
+  const padding = escaped.startsWith("`") || escaped.endsWith("`") ? " " : "";
+  return `${delimiter}${padding}${escaped}${padding}${delimiter}`;
 }
