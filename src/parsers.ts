@@ -121,7 +121,7 @@ function parseCargo(file: CandidateFile): RawCommand[] {
 function parseReadme(file: CandidateFile): RawCommand[] {
   const out: RawCommand[] = [];
   file.lines.forEach((line, index) => {
-    const match = /^\s*(?:[$>]\s*)?(npm run [A-Za-z0-9:_-]+|pnpm [A-Za-z0-9:_-]+|yarn [A-Za-z0-9:_-]+|make [A-Za-z0-9_.-]+|just [A-Za-z0-9_-]+|cargo (?:build|test|publish)|pytest|ruff check)\s*$/.exec(line.trim());
+    const match = /^\s*(?:[$>]\s*)?(npm (?:run [A-Za-z0-9:_-]+|test)|pnpm (?:run )?[A-Za-z0-9:_-]+|yarn (?:run )?[A-Za-z0-9:_-]+|make [A-Za-z0-9_.-]+|just [A-Za-z0-9_-]+|cargo (?:build|test|publish)|pytest|ruff check)\s*$/.exec(line.trim());
     if (match) out.push({ name: match[1], command: match[1], runner: "docs", evidence: evidence(file, index + 1) });
   });
   return out;
