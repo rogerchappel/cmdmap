@@ -17,6 +17,38 @@ test("scan discovers fixture commands with evidence and risk", async () => {
   assert.ok(result.findings.every((f) => f.evidence.file && f.evidence.line >= 1));
 });
 
+test("scan discovers standard package-manager README commands with exact evidence", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "cmdmap-readme-commands-"));
+  const readme = [
+    "# Commands",
+    "",
+    "```sh",
+    "npm test",
+    "$ pnpm run test",
+    "> yarn run build",
+    "pnpm lint",
+    "yarn dev",
+    "npm run",
+    "npm test after installing dependencies",
+    "```",
+  ].join("\n");
+
+  try {
+    await writeFile(path.join(root, "README.md"), readme);
+    const result = await scan({ cwd: root });
+
+    assert.deepEqual(result.findings.map(({ command, severity, evidence }) => ({ command, severity, evidence })), [
+      { command: "npm test", severity: "safe", evidence: { file: "README.md", line: 4, source: "npm test" } },
+      { command: "pnpm lint", severity: "safe", evidence: { file: "README.md", line: 7, source: "pnpm lint" } },
+      { command: "pnpm run test", severity: "safe", evidence: { file: "README.md", line: 5, source: "$ pnpm run test" } },
+      { command: "yarn dev", severity: "caution", evidence: { file: "README.md", line: 8, source: "yarn dev" } },
+      { command: "yarn run build", severity: "safe", evidence: { file: "README.md", line: 6, source: "> yarn run build" } },
+    ]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("markdown report is stable and useful", async () => {
   const result = await scan({ cwd: "fixtures/polyrepo" });
   const md = toMarkdown(result);
