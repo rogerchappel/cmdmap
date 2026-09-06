@@ -56,7 +56,9 @@ V1 scans these local files without executing project commands:
 - `pyproject.toml` installed console scripts from `[project.scripts]` and
   `[tool.poetry.scripts]`, plus string commands from `[tool.poe.tasks]`
 - `Cargo.toml` default cargo workflows
-- README command snippets
+- README command snippets, including `npm run <script>`, `npm test`,
+  `pnpm [run] <script>`, and `yarn [run] <script>` (optionally prefixed by
+  shell prompts such as `$` or `>`)
 - files under `scripts/`
 
 Discovery traverses normal nested packages and workspaces. It skips generated
