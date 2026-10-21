@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-npm test
+node scripts/check-test-discovery.mjs
 npm run check
 npm run build
 npm run smoke
